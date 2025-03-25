@@ -1,4 +1,4 @@
-The implementation of the Transformer model in this project is based on the techniques described in [this Medium article](https://medium.com/@khanarsh0124/gsoc-2024-with-humanai-text-recognition-with-transformer-models-de86522cdc17) by Arsh Khan (2024).
+The implementation of the Transformer model in this project is based on the techniques described in [this Medium article](https://medium.com/@khanarsh0124/gsoc-2024-with-humanai-text-recognition-with-transformer-models-de86522cdc17) by Arsh Khan for GSoC 2024 with HumanAI (2024).
 
 # Problem Statement
 To build a model based on convolutional-recurrent, transformer, or self-supervised architectures for optically recognizing the text of each data source. THe model should be able to detect the main text in each page, while disregarding other embellishments. Pick the most appropriate approach and discuss the strategy.
@@ -36,11 +36,17 @@ removed = 255 - removed
 dilate = cv2.dilate(removed, repair_kernel, iterations=5)
 ```
 
-![](assets/Preprocess_img.png)
+<div align="center">
+  <img src="assets/Preprocess_img.png" alt="Preprocess Images" width="600">
+  <br>
+</div>
 
 Then we employ a custom trained U-Net Segmentation Model modified with attention mechanism to identify the text region and crop the images by identifing the contour regions<br>
 
-![](assets/u_net_seg_ex.png)
+<div align="center">
+  <img src="assets/u_net_seg_ex.png" alt="U-Net Segmentation" width="400">
+  <br>
+</div>
 
 ### 2. Line Segmentation
 - We convert the image to binary format with text being white and background black
@@ -49,11 +55,19 @@ Then we employ a custom trained U-Net Segmentation Model modified with attention
 ```python
 threshold = (np.max(hpp)-np.min(hpp))/2
 ```
-![](assets/hpp_img.png)
+<div align="center">
+  <img src="assets/hpp_img.png" alt="Horizontal Projection Profile" width="600">
+  <br>
+</div>
+
 
 - We use A* Path Finding Algorithm to identify text lines and segment the image
 
-![](assets/seg_img.png)
+<div align="center">
+  <img src="assets/seg_img.png" alt="Segmented Images" width="600">
+  <br>
+  <b>Segmented Iamges</b>
+</div>
 
 ## Data Augmentations
 
@@ -75,3 +89,85 @@ augmentations = [
 ```
 
 ## Vision Transformers (ViT)
+We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) pretrained model
+- CER = 0.1059
+- WER = 0.2545<br>
+
+### Optimiser
+```python
+optimizer = AdamW(model.parameters(),
+                      lr=training_args.learning_rate,
+                      weight_decay=1e-2,
+                      betas=(0.9, 0.999),
+                      eps=1e-8)                 
+  ```
+### Schedulers
+The Cosine Scheduler increases the learning rate linearly from 0 to the initial value during the warm-up phase, then applies a cosine decay, reducing the learning rate toward 0 over the remaining steps.
+```python
+scheduler = get_cosine_schedule_with_warmup(optimizer,
+                                                num_warmup_steps=1000,
+                                                num_training_steps=num_training_steps)             
+  ```
+### Regularization
+- Temperature Scaling involves scaling the logits by dividing them by a scalar parameter T (temperature). A higher value of T reduces the confidence of the model’s predictions by flattening the softmax output, while lower values increase it. The parameter T is learned on a validation set to improve the alignment between predicted confidence scores and true probabilities, addressing model overconfidence without changing the learned weights.
+
+### Loss Function
+
+- #### Beam search :
+Beam search loss is a decoding strategy integrated into sequence generation models to optimize output quality by maintaining a fixed number of top candidate sequences at each step (the beam width). Refined the beam loss with techniques such as length normalization and changing the objective function to a normalized log-likelihood objective. These refinements reduces the issue of numeric underflow, which occurs when multiplying small probabilities across long sequences, and reduce bias towards short outputs, ensuring more coherent and contextually relevant sequences during generation.<br>
+
+<div align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*PlMV9QN1jmB6GsGO7p9Tng.png" alt="Refinements to Beam Search" width="600">
+  <br>
+  <b>Refinements to Beam Search</b>
+</div>
+- #### Focal Loss
+Focal Loss is a modification of cross-entropy loss designed to address class imbalance by focusing more on hard-to-classify examples. It introduces a scaling factor, where pt is the predicted probability of the true class and γ is a tunable parameter (called the focusing parameter). This factor down-weights the contribution of easily classified examples, allowing the model to focus more on difficult or misclassified instances.<br>
+
+<div align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:576/format:webp/1*OUTIgNx22eEYA7L_VMKvKQ.png" alt="Focal Loss" width="600">
+  <br>
+  <b>Focal Loss</b>
+</div>
+
+## Sequence Likelihood Calibration (SLiC)
+SLiC represents a natural extension of the current pretraining and fine-tuning paradigm, offering a more calibrated and robust approach to sequence generation, by calibrating sequence likelihoods directly in the model’s latent space.<br>
+<div align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:4800/format:webp/1*YyicD9lDCskD44y7g72aVQ.png" alt="Objective Function of SLiC" width="600">
+  <br>
+  <b>Objective Function of SLiC</b>
+</div>
+
+### Key Components
+- Decoding Candidates:<br>
+SLiC starts by decoding multiple candidate sequences from a fine-tuned model using standard decoding techniques like beam search or nucleus sampling. These candidate sequences are then used as the foundation for further calibration.
+
+- Similarity Function:<br>
+The similarity function measures the alignment between candidate output and target sequences by comparing their decoder output hidden state representations. It computes cosine similarities over token spans and aggregates them using an modified F-measure, focusing on spans of varying lengths.
+
+- Positive and Negative Candidates:<br>
+These are sequences that the model generates that are more or less similar to the target sequence, according to some similarity metric . A high similarity score indicates that the candidate is close to the true sequence in terms of content or structure (Positive Candidates). A lower similarity score indicates that these candidates deviate more from the true sequence (Negative Candidates).
+
+- Calibration Loss:<br>
+The calibration loss is designed to align the sequence likelihood of the model's decoded candidates with their similarity to the target sequence. Given the context, the target sequence and a set of candidate sequences, four distinct loss types are considered to optimize.
+
+<div align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:4800/format:webp/1*ZO_CYC3xgVMKjoNeUF3Glg.png" alt="Different Calibration Losses" width="600">
+  <br>
+  <b>Different Calibration Losses</b>
+</div>
+
+Rank Loss: Ensures positive candidates rank higher than negative ones.<br>
+Margin Loss: Increases the probability gap between positive and negative candidates.<br>
+List-wise Rank Loss: Optimizes the ranking of a list of candidates.<br>
+Expected Reward Loss: Maximizes expected similarity across a list of candidates.<br>
+
+- Regularization Loss:<br>
+Regularization losses are applied to prevent the model from deviating significantly from the original MLE objective.<br>
+<div align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:828/format:webp/1*Gtv5SyNQxwfvV4SZXQClOw.png" alt="KL Divergence as Regularization Loss " width="600">
+  <br>
+  <b>KL Divergence as Regularization Loss </b>
+</div>
+
+
