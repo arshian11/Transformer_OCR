@@ -1,6 +1,7 @@
 <div align="center">
   <img src="https://github.com/arshian11/CMS-Event-Classification/blob/main/assets/GSoC-icon-192.png" alt="GSOC Image" width="200">
   <img src="https://github.com/arshian11/Transformer_OCR/blob/main/assets/humanai.jpg" alt="ML4SCi Image" width="200">
+  <img src="https://humanai.foundation/images/DeepOCR.jpeg" alt="ML4SCi Image" width="200">
   <br>
 </div>
 
