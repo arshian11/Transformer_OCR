@@ -180,5 +180,24 @@ Regularization losses are applied to prevent the model from deviating significan
   <b>KL Divergence as Regularization Loss </b>
 </div>
 
-# Results
+### Validation
+- 10% of total dataset was used for validation at each 300 steps
+- Validation was performed in chunks to reduce memory consumption
 
+# Results
+Both the samll and large model were trained for 10 epochs<br>
+Final Results:<br>
+|Model|WER|CER|
+|---|---|---|
+|Small|0.43856|0.28494|
+|Large (Image size=(256,64))|0.151|0.11681|
+|Large (Image size=(128,32))|0.076527|0.039325|
+
+- It is found that training the model with lower segemnted image size performs much better than with higher image size. It is also more stable during training
+
+<div align="center">
+  <img src="https://github.com/arshian11/Transformer_OCR/blob/main/assets/WER_metric.png" alt="WER" width="500">
+  <img src="https://github.com/arshian11/Transformer_OCR/blob/main/assets/CER_metric.png" alt="WER" width="500">
+  
+  <br>
+</div>
