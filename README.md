@@ -69,6 +69,10 @@ threshold = (np.max(hpp)-np.min(hpp))/2
   <b>Segmented Iamges</b>
 </div>
 
+### 3. Text and Image Alignment
+- Segmented text images are aligned with their respective text segemnets
+- There were some wrong segmented images which had to be manually pruned but in future this process should be automated
+
 ## Data Augmentations
 
 ```python
@@ -89,9 +93,7 @@ augmentations = [
 ```
 
 ## Vision Transformers (ViT)
-We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) pretrained model
-- CER = 0.1059
-- WER = 0.2545<br>
+We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) [qantev/trocr-large-spanish](https://huggingface.co/qantev/trocr-large-spanish) pretrained model
 
 ### Optimiser
 ```python
