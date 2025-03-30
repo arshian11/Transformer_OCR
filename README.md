@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="https://github.com/arshian11/CMS-Event-Classification/blob/main/assets/GSoC-icon-192.png" alt="GSOC Image" width="200">
+  <img src="https://github.com/arshian11/Transformer_OCR/blob/main/assets/humanai.jpg" alt="ML4SCi Image" width="200">
+  <br>
+</div>
+
 The implementation of the Transformer model in this project is based on the techniques described in [this Medium article](https://medium.com/@khanarsh0124/gsoc-2024-with-humanai-text-recognition-with-transformer-models-de86522cdc17) by Arsh Khan for GSoC 2024 with HumanAI (2024).
 
 # Problem Statement
