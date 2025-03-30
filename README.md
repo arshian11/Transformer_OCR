@@ -101,7 +101,9 @@ augmentations = [
 
 ## Vision Transformers (ViT)
 We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) and [qantev/trocr-large-spanish](https://huggingface.co/qantev/trocr-large-spanish) pretrained model
+<br>
 
+Evaluation Metric used for training the model is Character Error Rate(CER)
 ### Optimiser
 ```python
 optimizer = AdamW(model.parameters(),
