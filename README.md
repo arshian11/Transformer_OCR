@@ -10,12 +10,12 @@ The implementation of the Transformer model in this project is based on the tech
 # Problem Statement
 To build a model based on convolutional-recurrent, transformer, or self-supervised architectures for optically recognizing the text of each data source. THe model should be able to detect the main text in each page, while disregarding other embellishments. Pick the most appropriate approach and discuss the strategy.
 
-# Dataset
+# :bar_chart:Dataset
 The dataset consists of 6 scanned early modern printed sources. The images have a simple recognition applied that reflects the limitations of the OCR already used (missed letters, incorrectly recognized words...), each source is saved as separate PDF file.<br>
 
 The dataset also includes a transcription of the first 3 pages of each PDF source – they should be used as reference while training the AI models for the project.
 
-# Approach
+# :arrow_forward:Approach
 
 ## Data Preprocessing
 
@@ -80,7 +80,7 @@ threshold = (np.max(hpp)-np.min(hpp))/2
 - Segmented text images are aligned with their respective text segemnets
 - There were some wrong segmented images which had to be manually pruned but in future this process should be automated
 
-## Data Augmentations
+## :microscope:Data Augmentations
 
 ```python
 augmentations = [
@@ -184,7 +184,7 @@ Regularization losses are applied to prevent the model from deviating significan
 - 10% of total dataset was used for validation at each 300 steps
 - Validation was performed in chunks to reduce memory consumption
 
-# Results
+# :diamonds:Results
 Both the samll and large model were trained for 10 epochs<br>
 Final Results:<br>
 |Model|WER|CER|
