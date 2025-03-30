@@ -93,7 +93,7 @@ augmentations = [
 ```
 
 ## Vision Transformers (ViT)
-We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) [qantev/trocr-large-spanish](https://huggingface.co/qantev/trocr-large-spanish) pretrained model
+We use the [qantev/trocr-small-spanish](https://huggingface.co/qantev/trocr-small-spanish) and [qantev/trocr-large-spanish](https://huggingface.co/qantev/trocr-large-spanish) pretrained model
 
 ### Optimiser
 ```python
@@ -111,20 +111,21 @@ scheduler = get_cosine_schedule_with_warmup(optimizer,
                                                 num_training_steps=num_training_steps)             
   ```
 ### Regularization
-- Temperature Scaling involves scaling the logits by dividing them by a scalar parameter T (temperature). A higher value of T reduces the confidence of the model’s predictions by flattening the softmax output, while lower values increase it. The parameter T is learned on a validation set to improve the alignment between predicted confidence scores and true probabilities, addressing model overconfidence without changing the learned weights.
+- Temperature Scaling involves scaling the logits by dividing them by a scalar parameter T (temperature). A higher value of T reduces the confidence of the model’s predictions by flattening the softmax output, while lower values increase it.
 
 ### Loss Function
 
 - #### Beam search :
-Beam search loss is a decoding strategy integrated into sequence generation models to optimize output quality by maintaining a fixed number of top candidate sequences at each step (the beam width). Refined the beam loss with techniques such as length normalization and changing the objective function to a normalized log-likelihood objective. These refinements reduces the issue of numeric underflow, which occurs when multiplying small probabilities across long sequences, and reduce bias towards short outputs, ensuring more coherent and contextually relevant sequences during generation.<br>
+Beam search loss is a decoding strategy integrated into sequence generation models to optimize output quality by maintaining a fixed number of top candidate sequences at each step (the beam width).<br>
 
 <div align="center">
   <img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*PlMV9QN1jmB6GsGO7p9Tng.png" alt="Refinements to Beam Search" width="600">
   <br>
   <b>Refinements to Beam Search</b>
 </div>
+
 - #### Focal Loss
-Focal Loss is a modification of cross-entropy loss designed to address class imbalance by focusing more on hard-to-classify examples. It introduces a scaling factor, where pt is the predicted probability of the true class and γ is a tunable parameter (called the focusing parameter). This factor down-weights the contribution of easily classified examples, allowing the model to focus more on difficult or misclassified instances.<br>
+Focal Loss is a modification of cross-entropy loss designed to address class imbalance by focusing more on hard-to-classify examples.<br>
 
 <div align="center">
   <img src="https://miro.medium.com/v2/resize:fit:576/format:webp/1*OUTIgNx22eEYA7L_VMKvKQ.png" alt="Focal Loss" width="600">
@@ -172,4 +173,5 @@ Regularization losses are applied to prevent the model from deviating significan
   <b>KL Divergence as Regularization Loss </b>
 </div>
 
+# Results
 
